@@ -1,0 +1,6 @@
+{
+  "name": "Excel Data Visualizer Pro",
+  "description": "An advanced application to upload Excel files, process data, and generate insightful charts (Bar, Pie, Line, Doughnut) for top N values with a polished user interface.",
+  "requestFramePermissions": [],
+  "prompt": ""
+}

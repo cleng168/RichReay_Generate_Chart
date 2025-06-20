@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>RichReay Generate Chart</title>
+    <link rel="icon" href="logo.png" type="image/x-icon" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+      integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ["Kantumruy Pro", "sans-serif"],
+            },
+            colors: {
+              blue: {
+                50: "#eff6ff",
+                100: "#dbeafe",
+                200: "#bfdbfe",
+                300: "#93c5fd",
+                400: "#60a5fa",
+                500: "#3b82f6",
+                600: "#2563eb",
+                700: "#1d4ed8",
+                800: "#1e40af",
+                900: "#1e3a8a",
+                950: "#172554",
+              },
+              slate: {
+                50: "#f8fafc",
+                100: "#f1f5f9",
+                200: "#e2e8f0",
+                300: "#cbd5e1",
+                400: "#94a3b8",
+                500: "#64748b",
+                600: "#475569",
+                700: "#334155",
+                800: "#1e293b",
+                900: "#0f172a",
+              },
+              emerald: {
+                100: "#d1fae5",
+                500: "#10b981",
+                600: "#059669",
+                700: "#047857",
+              },
+              amber: {
+                100: "#fef3c7",
+                500: "#f59e0b",
+                700: "#b45309",
+              },
+              orange: {
+                // Added for Total Suppliers card
+                100: "#fff7ed", // orange-100
+                500: "#f97316", // orange-500
+                600: "#ea580c", // orange-600
+              },
+              red: {
+                50: "#ffecec", // A lighter red for icon background
+                100: "#fee2e2", // red-100
+                500: "#ef4444", // red-500
+                600: "#dc2626", // red-600
+              },
+            },
+            backgroundImage: {
+              "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
+              "gradient-linear":
+                "linear-gradient(var(--tw-gradient-angle), var(--tw-gradient-stops))",
+            },
+          },
+        },
+      };
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <style type="text/tailwindcss">
+      body {
+        font-family: "Kantumruy Pro", sans-serif;
+      }
+      ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+      }
+      ::-webkit-scrollbar-track {
+        background: #e2e8f0;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #93c5fd;
+        border-radius: 4px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: #60a5fa;
+      }
+      .btn-primary {
+        @apply py-2.5 px-6 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-150 ease-in-out transform hover:scale-105;
+      }
+      .btn-primary:disabled {
+        @apply bg-slate-300 text-slate-500 cursor-not-allowed hover:bg-slate-300 transform-none;
+      }
+      .dropdown-item {
+        @apply block w-full text-left px-4 py-3 text-sm text-slate-700 hover:bg-blue-50 hover:text-blue-700 transition-colors duration-150 flex items-center rounded-md;
+      }
+      .dropdown-item:disabled,
+      .dropdown-item.disabled-item {
+        @apply text-slate-400 bg-white hover:bg-white hover:text-slate-400 cursor-not-allowed;
+      }
+      .dropdown-item svg {
+        @apply w-5 h-5 mr-3 text-slate-400;
+      }
+      .dropdown-item:not(:disabled):not(.disabled-item):hover svg {
+        @apply text-blue-500;
+      }
+      .dropdown-item:disabled svg,
+      .dropdown-item.disabled-item svg {
+        @apply text-slate-300;
+      }
+      .custom-radio-label {
+        @apply inline-flex items-center px-4 py-2.5 border border-slate-300 rounded-lg cursor-pointer hover:bg-slate-50 transition-colors duration-150;
+      }
+      .custom-radio-label input[type="radio"] {
+        @apply opacity-0 w-0 h-0 fixed;
+      }
+      .custom-radio-label span {
+        @apply text-sm font-medium text-slate-700;
+      }
+      .custom-radio-label input[type="radio"]:checked + span {
+        @apply text-blue-700;
+      }
+      .custom-radio-label
+        input[type="radio"]:checked
+        + span
+        + .radio-indicator {
+        @apply bg-blue-600 border-blue-600;
+      }
+      .custom-radio-label
+        input[type="radio"]:checked
+        + span
+        + .radio-indicator::after {
+        @apply opacity-100;
+      }
+      .custom-radio-label input[type="radio"]:focus + span + .radio-indicator {
+        @apply ring-2 ring-blue-500 ring-offset-1;
+      }
+      .radio-indicator {
+        @apply w-5 h-5 rounded-full border-2 border-slate-400 bg-white mr-2.5 transition-all duration-150 relative flex-shrink-0;
+      }
+      .radio-indicator::after {
+        content: "";
+        @apply w-2.5 h-2.5 bg-white rounded-full absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-0 transition-opacity duration-150;
+      }
+      .gradient-text {
+        @apply bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-blue-800;
+      }
+
+      #app-navbar,
+      #app-sidebar,
+      #main-container-wrapper {
+      }
+
+      .hamburger-line1,
+      .hamburger-line2,
+      .hamburger-line3 {
+        transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
+        transform-origin: center;
+      }
+      #sidebar-toggle-button[aria-expanded="false"] .hamburger-line1 {
+        transform: translateY(5.25px) rotate(45deg);
+      }
+      #sidebar-toggle-button[aria-expanded="false"] .hamburger-line2 {
+        opacity: 0;
+      }
+      #sidebar-toggle-button[aria-expanded="false"] .hamburger-line3 {
+        transform: translateY(-5.25px) rotate(-45deg);
+      }
+
+      #main-container-wrapper.panels-collapsed #app-navbar {
+        @apply -translate-y-full;
+      }
+
+      #main-container-wrapper.panels-collapsed {
+        @apply pt-0;
+      }
+
+      #main-container-wrapper.panels-collapsed #app-sidebar {
+        @apply max-h-0 opacity-0 p-0 py-0 border-0 overflow-hidden;
+
+        @apply md:w-20 md:max-h-none md:opacity-100 md:border-r md:border-slate-200 md:overflow-visible;
+        @apply md:top-0 md:h-screen md:p-4;
+        @apply md:flex md:items-center md:justify-center;
+      }
+
+      #main-container-wrapper.panels-collapsed
+        #app-sidebar
+        > *:not(#sidebar-toggle-button) {
+        @apply md:hidden;
+      }
+    </style>
+    <link rel="stylesheet" href="/index.css" />
+  </head>
+  <body class="bg-slate-100 text-slate-800 flex flex-col min-h-screen">
+    <nav
+      id="app-navbar"
+      class="bg-white h-16 shadow-md fixed top-0 left-0 right-0 z-50 flex items-center px-6 shrink-0 transition-transform duration-300 ease-in-out"
+    >
+      <img src="logo.png" alt="RichReay Logo" class="h-10 mr-4" />
+      <div
+        class="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-orange-500 to-amber-500"
+      >
+        RichReay Generate Chart
+      </div>
+    </nav>
+
+    <div
+      id="main-container-wrapper"
+      class="flex flex-col md:flex-row flex-grow w-full transition-[padding-top] duration-300 ease-in-out"
+      style="padding-top: 4rem"
+    >
+      <aside
+        id="app-sidebar"
+        class="w-full md:w-72 lg:w-80 xl:w-96 bg-white shadow-xl border-r border-slate-200 p-6 space-y-1 md:h-[calc(100vh-4rem)] md:sticky md:top-16 md:overflow-y-auto transition-all duration-300 ease-in-out"
+      >
+        <button
+          id="sidebar-toggle-button"
+          type="button"
+          class="p-2.5 rounded-md text-slate-600 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500 md:self-start mb-2 -ml-2 md:-ml-0"
+          aria-label="Hide navigation and sidebar"
+          aria-expanded="true"
+          aria-controls="app-navbar app-sidebar"
+        >
+          <i class="fa-solid fa-bars w-6 h-6 block text-xl"></i>
+        </button>
+        <div class="bg-white p-6 rounded-xl shadow-lg border border-slate-200">
+          <label
+            for="fileUpload"
+            class="block text-lg font-semibold text-slate-700 mb-3"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+              class="w-6 h-6 inline-block mr-2 align-text-bottom text-blue-600"
+            >
+              <path
+                d="M9.25 13.25a.75.75 0 001.5 0V4.636l2.955 3.129a.75.75 0 001.09-1.03l-4.25-4.5a.75.75 0 00-1.09 0l-4.25 4.5a.75.75 0 101.09 1.03L9.25 4.636v8.614z"
+              />
+              <path
+                d="M3.5 12.75a.75.75 0 00-1.5 0v2.5A2.75 2.75 0 004.75 18h10.5A2.75 2.75 0 0018 15.25v-2.5a.75.75 0 00-1.5 0v2.5c0 .69-.56 1.25-1.25 1.25H4.75c-.69 0-1.25-.56-1.25-1.25v-2.5z"
+              />
+            </svg>
+            Upload Excel File
+          </label>
+          <input
+            type="file"
+            id="fileUpload"
+            accept=".xlsx, .xls"
+            aria-describedby="file-instructions"
+            class="block w-full text-sm text-slate-600 file:mr-4 file:py-3 file:px-6 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 hover:file:text-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors duration-150 cursor-pointer border border-slate-300 rounded-lg p-1.5 focus-within:border-blue-500"
+          />
+          <p id="file-instructions" class="mt-2.5 text-xs text-slate-500">
+            Accepted: .xlsx, .xls. Ensure column headers.
+          </p>
+        </div>
+
+        <div class="bg-white p-6 rounded-xl shadow-lg border border-slate-200">
+          <h3 class="text-lg font-semibold text-slate-700 mb-4">
+            Data Configuration
+          </h3>
+          <div class="space-y-5">
+            <div>
+              <label
+                for="topNSelect"
+                class="block text-sm font-medium text-slate-600 mb-1.5"
+                >Show Items:</label
+              >
+              <select
+                id="topNSelect"
+                class="block w-full p-3 border border-slate-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow duration-150 text-sm bg-white text-slate-700"
+              >
+                <option value="10" selected>Top 10</option>
+                <option value="15">Top 15</option>
+                <option value="20">Top 20</option>
+                <option value="25">Top 25</option>
+                <option value="-1">Show All</option>
+              </select>
+            </div>
+            <div>
+              <label
+                for="labelColumnSelect"
+                class="block text-sm font-medium text-slate-600 mb-1.5"
+                >Select Label Column:</label
+              >
+              <select
+                id="labelColumnSelect"
+                class="block w-full p-3 border border-slate-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow duration-150 text-sm bg-white text-slate-700"
+              >
+                <option value="Supply Name" selected>Supply Name</option>
+                <option value="PV Code">PV Code</option>
+              </select>
+            </div>
+            <div>
+              <label
+                for="valueColumnSelect"
+                class="block text-sm font-medium text-slate-600 mb-1.5"
+                >Analyze Data Column:</label
+              >
+              <select
+                id="valueColumnSelect"
+                class="block w-full p-3 border border-slate-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow duration-150 text-sm bg-white text-slate-700"
+              >
+                <option value="Total" selected>Total Paid</option>
+                <option value="Processing Speed">Processing Speed Days</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div
+          class="bg-white p-6 rounded-xl shadow-lg border border-slate-200 space-y-6"
+        >
+          <fieldset>
+            <legend class="block text-lg font-semibold text-slate-700 mb-3">
+              Select Chart Type:
+            </legend>
+            <div class="grid grid-cols-2 gap-3">
+              <label for="barChart" class="custom-radio-label space-x-3">
+                <input
+                  type="radio"
+                  id="barChart"
+                  name="chartType"
+                  value="bar"
+                  checked
+                />
+                <span>Bar</span>
+                <div class="radio-indicator"></div>
+              </label>
+              <!-- <label for="pieChart" class="custom-radio-label space-x-3">
+                <input
+                  type="radio"
+                  id="pieChart"
+                  name="chartType"
+                  value="pie"
+                />
+                <span>Pie</span>
+                <div class="radio-indicator"></div>
+              </label> -->
+              <!-- <label for="lineChart" class="custom-radio-label space-x-3">
+                <input
+                  type="radio"
+                  id="lineChart"
+                  name="chartType"
+                  value="line"
+                />
+                <span>Line</span>
+                <div class="radio-indicator"></div>
+              </label> -->
+              <label for="doughnutChart" class="custom-radio-label space-x-3">
+                <input
+                  type="radio"
+                  id="doughnutChart"
+                  name="chartType"
+                  value="doughnut"
+                />
+                <span>Doughnut</span>
+                <div class="radio-indicator"></div>
+              </label>
+            </div>
+          </fieldset>
+
+          <div>
+            <h3 class="text-lg font-semibold text-slate-700 mb-3">
+              Export Data
+            </h3>
+            <div class="flex space-x-3">
+              <button
+                id="exportChartPdfButton"
+                type="button"
+                class="btn-primary flex-1 inline-flex items-center justify-center"
+                aria-label="Export chart and top items to PDF in landscape format"
+                disabled
+              >
+                <i class="fa-solid fa-file-pdf w-5 h-5 mr-2"></i>
+                Chart
+              </button>
+              <button
+                id="exportExcelButton"
+                type="button"
+                class="btn-primary flex-1 inline-flex items-center justify-center"
+                aria-label="Export top items to Excel"
+                disabled
+              >
+                <i class="fa-solid fa-file-excel w-5 h-5 mr-2"></i>
+                Top
+              </button>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      <main
+        id="app-main-content"
+        class="flex-grow px-6 md:px-8 space-y-8 md:h-[calc(100vh-4rem)] md:overflow-y-auto bg-slate-100"
+      >
+        <h2 id="output-heading" class="sr-only">Data Visualization Output</h2>
+
+        <div
+          id="statsCardsContainer"
+          class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 pt-6 md:pt-0"
+        >
+          <!-- Card 1: Total Payment Voucher -->
+          <div
+            class="bg-white p-5 rounded-xl shadow-lg border border-slate-200 relative overflow-hidden"
+          >
+            <div class="flex justify-between items-start mb-2">
+              <div>
+                <h4
+                  class="text-xs font-semibold text-slate-500 uppercase tracking-wider"
+                >
+                  Total Payment Voucher
+                </h4>
+                <div class="flex items-baseline space-x-1 mt-1">
+                  <span
+                    id="statCardPvCodeCountValue"
+                    class="text-3xl font-bold text-slate-800"
+                    >0</span
+                  >
+                </div>
+              </div>
+              <span
+                class="inline-flex items-center justify-center p-3 flex-shrink-0"
+              >
+                <i
+                  class="fa-solid fa-file-invoice-dollar text-blue-500 text-2xl"
+                ></i>
+              </span>
+            </div>
+            <div
+              class="absolute bottom-0 left-0 right-0 h-1.5 bg-blue-500"
+            ></div>
+          </div>
+
+          <!-- Card 2: Total Suppliers -->
+          <div
+            class="bg-white p-5 rounded-xl shadow-lg border border-slate-200 relative overflow-hidden"
+          >
+            <div class="flex justify-between items-start mb-2">
+              <div>
+                <h4
+                  class="text-xs font-semibold text-slate-500 uppercase tracking-wider"
+                >
+                  Total Suppliers
+                </h4>
+                <div class="flex items-baseline space-x-1 mt-1">
+                  <span
+                    id="statCardSupplyNameCountValue"
+                    class="text-3xl font-bold text-slate-800"
+                    >0</span
+                  >
+                </div>
+              </div>
+              <span
+                class="inline-flex items-center justify-center p-3 flex-shrink-0"
+              >
+                <i class="fa-solid fa-users text-orange-500 text-2xl"></i>
+              </span>
+            </div>
+            <div
+              class="absolute bottom-0 left-0 right-0 h-1.5 bg-orange-500"
+            ></div>
+          </div>
+
+          <!-- Card 3: Total Paid -->
+          <div
+            class="bg-white p-5 rounded-xl shadow-lg border border-slate-200 relative overflow-hidden"
+          >
+            <div class="flex justify-between items-start mb-2">
+              <div>
+                <h4
+                  class="text-xs font-semibold text-slate-500 uppercase tracking-wider"
+                >
+                  Total Paid
+                </h4>
+                <div class="flex items-baseline space-x-1 mt-1">
+                  <span
+                    id="statCardTotalPaidValue"
+                    class="text-3xl font-bold text-slate-800"
+                    >$0.00</span
+                  >
+                </div>
+              </div>
+              <span
+                class="inline-flex items-center justify-center p-3 flex-shrink-0"
+              >
+                <i class="fa-solid fa-sack-dollar text-red-500 text-2xl"></i>
+              </span>
+            </div>
+            <div
+              class="absolute bottom-0 left-0 right-0 h-1.5 bg-red-500"
+            ></div>
+          </div>
+        </div>
+
+        <div
+          id="messageArea"
+          role="status"
+          class="transition-all duration-300 ease-in-out"
+        ></div>
+
+        <div
+          class="chart-wrapper bg-white p-4 md:p-6 rounded-xl shadow-lg border border-slate-200"
+        >
+          <div
+            id="chartLoader"
+            class="absolute inset-0 bg-white bg-opacity-85 flex flex-col items-center justify-center hidden z-20 rounded-lg"
+          >
+            <svg
+              class="animate-spin h-12 w-12 text-blue-600 mb-4"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <circle
+                class="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                stroke-width="4"
+              ></circle>
+              <path
+                class="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+              ></path>
+            </svg>
+            <p class="text-blue-700 font-semibold text-xl">
+              Visualizing Data...
+            </p>
+            <p class="text-slate-500 text-sm">
+              Hang tight, creating your chart!
+            </p>
+          </div>
+          <div
+            class="chart-container relative min-h-[600px] md:min-h-[700px] lg:min-h-[800px] flex items-center justify-center"
+          >
+            <canvas id="dataChart" aria-label="Data Chart"></canvas>
+          </div>
+        </div>
+
+        <div
+          class="p-6 md:p-8 bg-white rounded-xl border border-slate-200 shadow-lg"
+        >
+          <h3
+            id="topItemsHeading"
+            class="text-2xl font-semibold text-blue-700 mb-6 pb-4 border-b border-slate-200"
+          >
+            Top Items Overview
+          </h3>
+          <ul id="topItemsList" class="space-y-4">
+            <!-- Top items will be populated here by JavaScript -->
+          </ul>
+        </div>
+      </main>
+    </div>
+
+    <script type="module" src="./index.tsx"></script>
+    <script type="module" src="/index.tsx"></script>
+  </body>
+</html>
